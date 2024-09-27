@@ -2,9 +2,10 @@ package com.security.user.Converter;
 
 import com.security.user.dto.request.RegisterRequest;
 import com.security.user.entity.User;
+import org.springframework.stereotype.Component;
 
 public class UserConverter {
-    public User toEntity(RegisterRequest request) {
+    public static User toEntity(RegisterRequest request) {
 
     User user = new User();
     user.setName(request.getName());
