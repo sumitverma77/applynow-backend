@@ -30,30 +30,39 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain (HttpSecurity http, RequestContextFilter requestContextFilter) throws Exception {
-         http
-                .csrf(customer->customer.disable())
-                .authorizeHttpRequests(request->request.anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults())
-                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-         return  http.build();
+        //                 http
+//                .csrf(customer->customer.disable())
+//                .authorizeHttpRequests(request->request.anyRequest().authenticated())
+//                .httpBasic(Customizer.withDefaults())
+//                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+//         return  http.build();
+        return http.
+                csrf(customizer -> customizer.disable()).
+                authorizeHttpRequests(request -> request.anyRequest().authenticated()).
+                httpBasic(Customizer.withDefaults()).
+                sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).build();
     }
+
+
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setPasswordEncoder(NoOpPasswordEncoder.getInstance()); // Set password encoder
-        authProvider.setUserDetailsService(userDetailsService());  // Call method to get the UserDetailsService instance
+        authProvider.setPasswordEncoder(new BCryptPasswordEncoder()); // Set password encoder
+      //  authProvider.setPasswordEncoder(NoOpPasswordEncoder.getInstance()); // Set password encoder
+        authProvider.setUserDetailsService(userDetailsService);  // Call method to get the UserDetailsService instance
         return authProvider;
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User
-                .withUsername("sumit")
-                .password("verma")
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(user); // Return instance of UserDetailsService
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        UserDetails user = User
+//                .withUsername("sumit")
+//                .password("verma")
+//                .roles("USER")
+//                .build();
+//        return new InMemoryUserDetailsManager(user); // Return instance of UserDetailsService
+//    }
     @Bean
     public PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();

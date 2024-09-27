@@ -4,5 +4,5 @@ CREATE TABLE user_registration (
                                        name VARCHAR(100),
                                        user_name VARCHAR(100) UNIQUE,
                                        password VARCHAR(255)
-                                       );
+                                );
 
