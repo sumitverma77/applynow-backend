@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -29,7 +31,7 @@ public class SecurityConfig {
     UserDetailsService userDetailsService;
 
     @Bean
-    public SecurityFilterChain securityFilterChain (HttpSecurity http, RequestContextFilter requestContextFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
         //                 http
 //                .csrf(customer->customer.disable())
 //                .authorizeHttpRequests(request->request.anyRequest().authenticated())
@@ -38,7 +40,10 @@ public class SecurityConfig {
 //         return  http.build();
         return http.
                 csrf(customizer -> customizer.disable()).
-                authorizeHttpRequests(request -> request.anyRequest().authenticated()).
+                authorizeHttpRequests(request -> request
+                        .requestMatchers("/user/register" , "/user/login")
+                        .permitAll()
+                        .anyRequest().authenticated()).
                 httpBasic(Customizer.withDefaults()).
                 sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).build();
     }
@@ -53,6 +58,12 @@ public class SecurityConfig {
         authProvider.setUserDetailsService(userDetailsService);  // Call method to get the UserDetailsService instance
         return authProvider;
     }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+      return   configuration.getAuthenticationManager();
+
+    }
+
 
 //    @Bean
 //    public UserDetailsService userDetailsService() {

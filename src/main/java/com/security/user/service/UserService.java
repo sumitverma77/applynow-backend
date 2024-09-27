@@ -7,6 +7,9 @@ import com.security.user.exception.DuplicateUserNameException;
 import com.security.user.repo.UserRepo;
 import com.security.user.dto.request.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,6 +24,8 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     @Autowired
     private UserDetailsService userDetailsService;
+    @Autowired
+    AuthenticationManager authenticationManager;
     public User registerUser(RegisterRequest request) {
 
         if (userRepo.existsByUserName(request.getEmail())) {
@@ -37,4 +42,15 @@ public class UserService {
         }
         return userDetailsService.loadUserByUsername(user.getUserName());
     }
+    /*TODO: agr khud ka response bhejna ho
+       jisme kuch extra attributes chahie to ye use kr lena
+     */
+//    public LoginResponse login2(LoginRequest request) {
+//        Authentication authentication = authenticationManager
+//                .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+//        if (authentication == null) {
+//            throw new UsernameNotFoundException("Invalid username or password");
+//        }
+//        return
+//    }
 }
