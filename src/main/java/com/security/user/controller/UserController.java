@@ -6,6 +6,7 @@ import com.security.user.dto.request.RegisterRequest;
 import com.security.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("register")
-    public User register(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
         return userService.registerUser(registerRequest);
     }
     @PostMapping("login")
@@ -30,6 +31,4 @@ public class UserController {
     public CsrfToken getCsrfToken(HttpServletRequest request) {
         return (CsrfToken) request.getAttribute("_csrf");
     }
-
-
 }
