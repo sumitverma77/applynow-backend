@@ -57,11 +57,10 @@ public class UserService {
             throw new DuplicateUserNameException("Username already exists: " + request.getEmail());
         }
         String otp = AuthUtils.generateOtp();
-        redisTemplate.opsForValue().set("otp:" + request.getEmail(), otp, 10, TimeUnit.MINUTES);
+    //    redisTemplate.opsForValue().set("otp:" + request.getEmail(), otp, 10, TimeUnit.MINUTES);
         emailService.sendOtpEmail(request.getEmail(), otp);
         return ResponseEntity.ok("OTP has been sent to : " + request.getEmail());
     }
-
 
 
 
