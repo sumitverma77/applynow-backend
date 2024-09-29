@@ -2,6 +2,7 @@ package com.security.user.Converter;
 
 import com.security.user.dto.request.RegisterRequest;
 import com.security.user.entity.User;
+import com.security.user.utils.AuthUtils;
 import org.springframework.stereotype.Component;
 
 public class UserConverter {

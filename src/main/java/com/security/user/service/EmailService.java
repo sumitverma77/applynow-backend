@@ -1,8 +1,10 @@
 package com.security.user.service;
 
 import com.security.user.dto.request.OtpVerificationRequest;
+import com.security.user.entity.User;
 import com.security.user.exception.EmailSendingException;
 import com.security.user.exception.InvalidEmailException;
+import com.security.user.repo.UserRepo;
 import com.security.user.utils.AuthUtils;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -22,6 +24,8 @@ public class EmailService {
     private RedisTemplate<String, String> redisTemplate;
     @Autowired
     private JavaMailSender mailSender;
+    @Autowired
+    UserRepo userRepo;
 
     public void sendOtpEmail(String email, String otp) {
 
@@ -38,14 +42,12 @@ public class EmailService {
                 + "<p>Best regards,<br>InternBix</p>"
                 + "</body>"
                 + "</html>";
-        redisTemplate.opsForValue().set(email, otp, 10, TimeUnit.MINUTES);
-//        System.out.println(redisTemplate.opsForValue().get(email));
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setTo(email);
             helper.setSubject(subject);
-            helper.setText(htmlContent, true); // Set true for HTML
+            helper.setText(htmlContent, true);
 
             mailSender.send(message);
         } catch (MessagingException e) {
@@ -59,9 +61,31 @@ public class EmailService {
         String otp = request.getOtp();
         String storedOtp = redisTemplate.opsForValue().get(email);
         if (storedOtp != null && storedOtp.equals(otp)) {
-            return ResponseEntity.ok("OTP verified successfully.");
-        } else {
+            User user = userRepo.findByUserName(email);
+            if (user != null) {
+                user.setActive(true);
+                userRepo.save(user);
+                return ResponseEntity.ok("OTP verified successfully.");
+            }
+            else {
+                return ResponseEntity.badRequest().body("User not found.");
+            }
+        }
+        else {
             return ResponseEntity.badRequest().body("Invalid or expired OTP");
         }
+    }
+    public ResponseEntity<String> resendOtp(String email)
+    {
+        User user = userRepo.findByUserName(email);
+
+        if (user == null) {
+            return ResponseEntity.badRequest().body("User not found with the email: " + email);
+        }
+        String newOtp = AuthUtils.generateOtp();
+        redisTemplate.opsForValue().set(email, newOtp, 10, TimeUnit.MINUTES);
+        sendOtpEmail(email, newOtp);
+        return ResponseEntity.ok("A new OTP has been sent to: " + email);
+
     }
 }

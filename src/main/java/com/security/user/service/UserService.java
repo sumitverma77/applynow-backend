@@ -44,25 +44,18 @@ public class UserService {
     EmailService emailService;
     public ResponseEntity<?> registerUser(RegisterRequest request) {
 
-//        if (userRepo.existsByUserName(request.getEmail())) {
-//            throw new DuplicateUserNameException("Username already exists: " + request.getEmail());
-//        }
-//       request.setPassword( passwordEncoder.encode(request.getPassword()));
-//        User user = UserConverter.toEntity(request);
-//        return userRepo.save(user);
-
-// with otp
-
-        if (userRepo.existsByUserName(request.getEmail())) {
+        if (userRepo.existsByUserNameAndIsActive(request.getEmail() , true)) {
             throw new DuplicateUserNameException("Username already exists: " + request.getEmail());
         }
         String otp = AuthUtils.generateOtp();
-    //    redisTemplate.opsForValue().set("otp:" + request.getEmail(), otp, 10, TimeUnit.MINUTES);
         emailService.sendOtpEmail(request.getEmail(), otp);
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
+        redisTemplate.opsForValue().set(request.getEmail(), otp, 10, TimeUnit.MINUTES);
+        if(!userRepo.existsByUserNameAndIsActive(request.getEmail() , false)) {
+            userRepo.save(UserConverter.toEntity(request));
+        }
         return ResponseEntity.ok("OTP has been sent to : " + request.getEmail());
     }
-
-
 
 
     public UserDetails login(LoginRequest request) {

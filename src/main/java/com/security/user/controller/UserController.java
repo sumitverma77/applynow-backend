@@ -34,11 +34,15 @@ public class UserController {
     public ResponseEntity<String> verifyOtp(@RequestBody OtpVerificationRequest request) {
         return emailService.verifyOtp(request);
     }
+    @PostMapping("resend-otp")
+        public ResponseEntity<String> resend(@RequestHeader("email") String email)
+        {
+                   return  emailService.resendOtp(email);
+        }
 
     @GetMapping("csrf/")
     public CsrfToken getCsrfToken(HttpServletRequest request) {
         return (CsrfToken) request.getAttribute("_csrf");
     }
-
 
 }
