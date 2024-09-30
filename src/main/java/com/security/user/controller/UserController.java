@@ -27,7 +27,7 @@ public class UserController {
         return userService.registerUser(registerRequest);
     }
     @PostMapping("login")
-    public UserDetails login(@RequestBody LoginRequest loginRequest) {
+    public String login(@RequestBody LoginRequest loginRequest) {
         return userService.login(loginRequest); // Call the login method
     }
     @PostMapping("verify-otp")
@@ -39,9 +39,14 @@ public class UserController {
         {
                    return  emailService.resendOtp(email);
         }
-
+     @GetMapping ("test")
+     public void test()
+     {
+         System.out.println("test");
+     }
     @GetMapping("csrf/")
     public CsrfToken getCsrfToken(HttpServletRequest request) {
+        System.out.println("hi");
         return (CsrfToken) request.getAttribute("_csrf");
     }
 

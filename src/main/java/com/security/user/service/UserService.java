@@ -22,6 +22,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeUnit;
 
 import static com.security.user.utils.AuthUtils.generateOtp;
@@ -58,12 +59,24 @@ public class UserService {
     }
 
 
-    public UserDetails login(LoginRequest request) {
-        User user = userRepo.findByUserName(request.getEmail());
-        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new UsernameNotFoundException("Invalid username or password");
+    public String login(LoginRequest request)  {
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+//        if (authentication == null) {
+//            throw new UsernameNotFoundException("Invalid username or password");
+//        }
+        if(!authentication.isAuthenticated())
+        {
+             throw new UsernameNotFoundException("Username or password is incorrect");
         }
-        return userDetailsService.loadUserByUsername(user.getUserName());
+
+        return jwtService.generateToken(request.getEmail());
+
+//        User user = userRepo.findByUserName(request.getEmail());
+//        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+//            throw new UsernameNotFoundException("Invalid username or password");
+//        }
+//        return userDetailsService.loadUserByUsername(user.getUserName());
     }
     /*TODO: agr khud ka response bhejna ho
        jisme kuch extra attributes chahie to ye use kr lena
