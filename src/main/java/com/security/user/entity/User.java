@@ -14,6 +14,7 @@ public class User {
     String name;
     String userName;
     String password;
+    boolean isActive;
     @PrePersist
     public void generateId() {
         if (this.id == null) {
