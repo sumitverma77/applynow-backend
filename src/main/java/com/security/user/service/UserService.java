@@ -2,30 +2,22 @@ package com.security.user.service;
 
 import com.security.user.Converter.UserConverter;
 import com.security.user.dto.request.LoginRequest;
-import com.security.user.dto.response.RegisterResponse;
+import com.security.user.dto.request.RegisterRequest;
 import com.security.user.entity.User;
 import com.security.user.exception.DuplicateUserNameException;
 import com.security.user.repo.UserRepo;
-import com.security.user.dto.request.RegisterRequest;
 import com.security.user.utils.AuthUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeUnit;
-
-import static com.security.user.utils.AuthUtils.generateOtp;
 
 @Service
 public class UserService {
@@ -37,8 +29,7 @@ public class UserService {
     private UserDetailsService userDetailsService;
     @Autowired
     JWTService jwtService;
-    @Autowired
-    RedisTemplate<String , String> redisTemplate;
+
     @Autowired
     AuthenticationManager authenticationManager;
     @Autowired
@@ -49,10 +40,16 @@ public class UserService {
             throw new DuplicateUserNameException("Username already exists: " + request.getEmail());
         }
         String otp = AuthUtils.generateOtp();
+        request.setOtp(otp);
         emailService.sendOtpEmail(request.getEmail(), otp);
         request.setPassword(passwordEncoder.encode(request.getPassword()));
-        redisTemplate.opsForValue().set(request.getEmail(), otp, 10, TimeUnit.MINUTES);
-        if(!userRepo.existsByUserNameAndIsActive(request.getEmail() , false)) {
+        if(userRepo.existsByUserNameAndIsActive(request.getEmail() , false)) {
+            User user =  userRepo.findByUserName(request.getEmail());
+            user.setOtp(otp);
+            userRepo.save(user);
+        }
+        else {
+            request.setOtp(otp);
             userRepo.save(UserConverter.toEntity(request));
         }
         return ResponseEntity.ok("OTP has been sent to : " + request.getEmail());

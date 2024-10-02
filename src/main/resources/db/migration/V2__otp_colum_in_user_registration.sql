@@ -1,0 +1,1 @@
+alter table user.user_registration add column otp VARCHAR(6);
