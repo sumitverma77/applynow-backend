@@ -12,6 +12,7 @@ public class UserConverter {
     user.setName(request.getName());
     user.setUserName(request.getEmail());
     user.setPassword(request.getPassword());
+    user.setOtp(request.getOtp());
     return user;
     }
 }

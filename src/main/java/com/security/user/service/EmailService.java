@@ -9,19 +9,14 @@ import com.security.user.utils.AuthUtils;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.TimeUnit;
-
 @Service
 public class EmailService {
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+
     @Autowired
     private JavaMailSender mailSender;
     @Autowired
@@ -59,18 +54,13 @@ public class EmailService {
     public ResponseEntity<String> verifyOtp(OtpVerificationRequest request) {
         String email = request.getEmail();
         String otp = request.getOtp();
-        String storedOtp = redisTemplate.opsForValue().get(email);
+        User user = userRepo.findByUserName(email);
+        String storedOtp = user.getOtp();
         if (storedOtp != null && storedOtp.equals(otp)) {
-            User user = userRepo.findByUserName(email);
-            if (user != null) {
                 user.setActive(true);
                 userRepo.save(user);
                 return ResponseEntity.ok("OTP verified successfully.");
             }
-            else {
-                return ResponseEntity.badRequest().body("User not found.");
-            }
-        }
         else {
             return ResponseEntity.badRequest().body("Invalid or expired OTP");
         }
@@ -83,9 +73,9 @@ public class EmailService {
             return ResponseEntity.badRequest().body("User not found with the email: " + email);
         }
         String newOtp = AuthUtils.generateOtp();
-        redisTemplate.opsForValue().set(email, newOtp, 10, TimeUnit.MINUTES);
+        user.setOtp(newOtp);
+        userRepo.save(user);
         sendOtpEmail(email, newOtp);
         return ResponseEntity.ok("A new OTP has been sent to: " + email);
-
     }
 }
