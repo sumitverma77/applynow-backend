@@ -25,8 +25,6 @@ public class JwtFilter extends OncePerRequestFilter {
     private JWTService jwtService;
      @Autowired
      private ApplicationContext context;
-
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
@@ -36,9 +34,8 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwtToken = authHeader.substring(7);
                 username = jwtService.extractUsername(jwtToken);
-
         }
-        if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null){
+        if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null) {
             //checking token is valid or not
             UserDetails userDetails = context.getBean(MyUserDetailsService.class).loadUserByUsername(username);
             if(jwtService.validateToken(jwtToken , userDetails))

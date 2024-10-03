@@ -74,7 +74,7 @@ public class EmailService {
         }
         String newOtp = AuthUtils.generateOtp();
         user.setOtp(newOtp);
-        userRepo.save(user);
+            userRepo.save(user);
         sendOtpEmail(email, newOtp);
         return ResponseEntity.ok("A new OTP has been sent to: " + email);
     }
