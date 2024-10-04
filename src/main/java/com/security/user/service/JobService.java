@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 public class JobService {
@@ -104,7 +105,7 @@ public class JobService {
         }
         jobPostDAO.deleteJob(jobId , jobDate);
 
-        return new ResponseEntity<>("Job deleted successfully", HttpStatus.OK);
+        return new ResponseEntity<>( new ErrorResponse("Job deleted successfully", HttpStatus.OK.value()), HttpStatus.OK);
     }
 
 }

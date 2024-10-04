@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.security.user.constant.ApiConstants.API_KEY;
+
 @RestController
 @RequestMapping("job/")
 public class JobController {
@@ -20,25 +22,27 @@ public class JobController {
 
     @PostMapping("post")
     public ResponseEntity<AddJobResponse> add(@RequestBody AddJobRequest addRequest) {
-        System.out.println("hello");
+
         return jobService.saveJob(addRequest);
     }
 
-    @GetMapping("get")
-    public ResponseEntity<List<JobEntity>> get(@RequestBody GetJobRequest getJobRequest, @RequestHeader("API_KEY") String secretKey ) {
+    @PostMapping("get-all-jobs")
+    public ResponseEntity<List<JobEntity>> get(@RequestBody GetJobRequest getJobRequest, @RequestHeader(value = API_KEY, required = false) String secretKey ) {
+
         return jobService.getJobs(getJobRequest, secretKey);
     }
-    @GetMapping("get/verified-jobs")
+    @PostMapping("get/verified-jobs")
     public  ResponseEntity<List<JobEntity>> getVerifiedJobs(@RequestBody GetJobRequest getJobRequest)
     {
         return jobService.getVerifiedJobs(getJobRequest);
     }
     @PostMapping("approve")
-    public ResponseEntity<?> approveJob(@RequestHeader("JOB_ID") String jobId, @RequestHeader("DATE") Long jobDate, @RequestHeader("API_KEY") String secretKey ) {
+    public ResponseEntity<?> approveJob(@RequestHeader("JOB_ID") String jobId, @RequestHeader("DATE") Long jobDate, @RequestHeader(value = API_KEY , required = false) String secretKey ) {
+        System.out.println(secretKey);
       return jobService.approveJob(jobId , jobDate ,  secretKey);
     }
     @DeleteMapping("delete")
-    public ResponseEntity<?> deleteJob(@RequestHeader("JOB_ID") String jobId, @RequestHeader("DATE") Long jobDate,@RequestHeader("API_KEY") String secretKey) {
+    public ResponseEntity<?> deleteJob(@RequestHeader("JOB_ID") String jobId, @RequestHeader("DATE") Long jobDate,@RequestHeader(value = API_KEY , required = false) String secretKey) {
         return jobService.deleteJob(jobId , jobDate ,  secretKey);
     }
 }

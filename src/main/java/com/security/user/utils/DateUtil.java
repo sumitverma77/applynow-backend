@@ -8,6 +8,7 @@ public class DateUtil {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
     public static boolean isValidDate(String date) {
+        System.out.println("in is valid date fucntion ");
         if (date == null || !date.matches("\\d{2}-\\d{2}-\\d{4}")) {
             return false;
         }

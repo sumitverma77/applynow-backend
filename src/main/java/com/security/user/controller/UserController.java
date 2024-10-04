@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
+import static com.security.user.constant.ApiConstants.API_KEY;
+
 @RestController
 @RequestMapping("user/")
 public class UserController {
@@ -23,7 +25,7 @@ public class UserController {
     EmailService emailService;
 
     @PostMapping("register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest, @RequestHeader("API-KEY") String apiKeyHeader) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest, @RequestHeader(value = API_KEY , required = false) String apiKeyHeader) {
         return userService.registerUser(registerRequest , apiKeyHeader);
     }
     @PostMapping("login")
