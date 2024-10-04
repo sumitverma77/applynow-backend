@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -19,18 +20,18 @@ import java.util.function.Function;
 
 @Service
 public class JWTService {
+    @Value("${jwt.secret}")
+     private String secretKey;
 
-    private String secretkey = "";
-
-    public JWTService() {
-        try {
-            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey sk = keyGen.generateKey();
-            secretkey = Base64.getEncoder().encodeToString(sk.getEncoded());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    public JWTService() {
+//        try {
+//            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
+//            SecretKey sk = keyGen.generateKey();
+//            secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
+//        } catch (NoSuchAlgorithmException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     public String generateToken(String email)  {
         Map<String, Object> claims = new HashMap<String, Object>();
@@ -39,14 +40,14 @@ public class JWTService {
                 .add(claims)
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis()+ 30 * 60 * 1000))
+//                .expiration(new Date(System.currentTimeMillis()+ 30 * 60 * 1000))
                 .and()
                 .signWith(getkey())
                 .compact();
     }
 
     private SecretKey getkey()  {
-        byte[] keyBytes = Decoders.BASE64.decode(secretkey);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
 //        try
 //        {
@@ -64,6 +65,7 @@ public class JWTService {
 //            return null;
     }
     public String extractUsername(String token) {
+
         return extractClaim(token, Claims::getSubject);
     }
     private<T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -84,13 +86,14 @@ public class JWTService {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
-    private boolean isTokenExpired(String token)
+    private boolean  isTokenExpired(String token)
     {
-      return  extractExpiration(token).before(new Date());
+     return false;
+    //        return  extractExpiration(token).before(new Date());
     }
-    private Date extractExpiration(String token)
-    {
-        return extractClaim(token, Claims::getExpiration);
-    }
+//    private Date extractExpiration(String token)
+//    {
+//        return extractClaim(token, Claims::getExpiration);
+//    }
 
 }

@@ -8,6 +8,8 @@ import com.security.user.exception.DuplicateUserNameException;
 import com.security.user.repo.UserRepo;
 import com.security.user.utils.AuthUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,11 +36,17 @@ public class UserService {
     AuthenticationManager authenticationManager;
     @Autowired
     EmailService emailService;
-    public ResponseEntity<?> registerUser(RegisterRequest request) {
-
+    @Value("${api.key}")
+    private String apiKey;
+    public ResponseEntity<?> registerUser(RegisterRequest request ,String apikeyHeader) {
+        if(!apiKey.equals(apikeyHeader))
+        {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Dont you have API key?");
+        }
         if (userRepo.existsByUserNameAndIsActive(request.getEmail() , true)) {
             throw new DuplicateUserNameException("Username already exists: " + request.getEmail());
         }
+
         String otp = AuthUtils.generateOtp();
         request.setOtp(otp);
         emailService.sendOtpEmail(request.getEmail(), otp);
@@ -57,6 +65,9 @@ public class UserService {
 
 
     public String login(LoginRequest request)  {
+        if(!userRepo.existsByUserNameAndIsActive(request.getEmail() , true)) {
+            throw new UsernameNotFoundException("Username or password is incorrect");
+        }
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 //        if (authentication == null) {
