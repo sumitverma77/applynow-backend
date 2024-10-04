@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,8 +44,11 @@ public class JobService {
         }
     }
 //  get all jobs
-    public ResponseEntity<List<JobEntity>> getJobs(GetJobRequest getJobRequest) {
-        Optional<Long> inputDateInSeconds = DateUtil.toUnixTimestamp(getJobRequest.getJobsAvailableDate());
+    public ResponseEntity<List<JobEntity>> getJobs(GetJobRequest getJobRequest , String providedKey) {
+        if (!SECRET_KEY.equals(providedKey)) {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+         Optional<Long> inputDateInSeconds = DateUtil.toUnixTimestamp(getJobRequest.getJobsAvailableDate());
         if(DateUtil.isValidDate(getJobRequest.getJobsAvailableDate()) && inputDateInSeconds.isPresent())
         {
             List<JobEntity>availableJobs=jobPostDAO.getAvailableJobs(inputDateInSeconds.get());

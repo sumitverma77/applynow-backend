@@ -25,8 +25,8 @@ public class JobController {
     }
 
     @GetMapping("get")
-    public ResponseEntity<List<JobEntity>> get(@RequestBody GetJobRequest getJobRequest) {
-        return jobService.getJobs(getJobRequest);
+    public ResponseEntity<List<JobEntity>> get(@RequestBody GetJobRequest getJobRequest, @RequestHeader("API_KEY") String secretKey ) {
+        return jobService.getJobs(getJobRequest, secretKey);
     }
     @GetMapping("get/verified-jobs")
     public  ResponseEntity<List<JobEntity>> getVerifiedJobs(@RequestBody GetJobRequest getJobRequest)

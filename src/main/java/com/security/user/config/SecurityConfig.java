@@ -45,7 +45,7 @@ public class SecurityConfig {
         return http.
                 csrf(customizer -> customizer.disable()).
                 authorizeHttpRequests(request -> request
-                        .requestMatchers("/user/register" ,"/user/login" ,"user/verify-otp" ,"/user/resend-otp")
+                        .requestMatchers("/user/register" ,"/user/login" ,"/user/verify-otp" ,"/user/resend-otp" ,"/job/delete" , "/job/approve" , "/job/get")
                         .permitAll()
                         .anyRequest().authenticated()).
                 httpBasic(Customizer.withDefaults()).
