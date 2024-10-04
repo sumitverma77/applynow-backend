@@ -30,6 +30,7 @@ public class JobConverter {
         }
         jobEntity.setLocation(addJobRequest.getLocation());
         jobEntity.setApplicationLink(addJobRequest.getApplicationLink());
+        jobEntity.setIsVerified(false);
         return jobEntity;
     }
 }

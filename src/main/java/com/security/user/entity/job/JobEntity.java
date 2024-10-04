@@ -17,6 +17,7 @@ public class JobEntity {
 
     @DynamoDBAttribute
     private String applicationLink;
+
     @DynamoDBRangeKey(attributeName = "dateOfRelease")
     private Long dateOfRelease;
 
@@ -28,5 +29,5 @@ public class JobEntity {
     @DynamoDBAttribute
     private String location;
     @DynamoDBAttribute
-    private String isVerified;
+    private Boolean isVerified;
 }

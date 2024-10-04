@@ -23,7 +23,7 @@ public class UserController {
     EmailService emailService;
 
     @PostMapping("register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest, @RequestHeader("REG-API-KEY") String apiKeyHeader) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest, @RequestHeader("API-KEY") String apiKeyHeader) {
         return userService.registerUser(registerRequest , apiKeyHeader);
     }
     @PostMapping("login")

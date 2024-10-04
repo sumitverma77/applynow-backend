@@ -41,7 +41,7 @@ public class UserService {
     public ResponseEntity<?> registerUser(RegisterRequest request ,String apikeyHeader) {
         if(!apiKey.equals(apikeyHeader))
         {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Dont know API key?");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Dont you have API key?");
         }
         if (userRepo.existsByUserNameAndIsActive(request.getEmail() , true)) {
             throw new DuplicateUserNameException("Username already exists: " + request.getEmail());
