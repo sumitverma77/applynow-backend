@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.security.user.constant.ApiConstants.API_KEY;
+import static com.security.user.constant.ApiConstants.*;
 
 @RestController
 @RequestMapping("job/")
@@ -37,12 +37,12 @@ public class JobController {
         return jobService.getVerifiedJobs(getJobRequest);
     }
     @PostMapping("approve")
-    public ResponseEntity<?> approveJob(@RequestHeader("JOB_ID") String jobId, @RequestHeader("DATE") Long jobDate, @RequestHeader(value = API_KEY , required = false) String secretKey ) {
+    public ResponseEntity<?> approveJob(@RequestHeader(value = JOB_ID  , required = false) String jobId,@RequestHeader(value = RELEASE_DATE  , required = false) Long jobDate, @RequestHeader(value = API_KEY , required = false) String secretKey ) {
         System.out.println(secretKey);
       return jobService.approveJob(jobId , jobDate ,  secretKey);
     }
     @DeleteMapping("delete")
-    public ResponseEntity<?> deleteJob(@RequestHeader("JOB_ID") String jobId, @RequestHeader("DATE") Long jobDate,@RequestHeader(value = API_KEY , required = false) String secretKey) {
+    public ResponseEntity<?> deleteJob(@RequestHeader(value = JOB_ID  , required = false) String jobId, @RequestHeader(value = RELEASE_DATE  , required = false) Long jobDate,@RequestHeader(value = API_KEY , required = false) String secretKey) {
         return jobService.deleteJob(jobId , jobDate ,  secretKey);
     }
 }
