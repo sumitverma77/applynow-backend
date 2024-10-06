@@ -7,4 +7,6 @@ import lombok.NoArgsConstructor;
 public class ApiConstants {
 
     public static final String API_KEY = "X-API-KEY";
+    public static final String JOB_ID = "X-JOB-ID";
+    public static final String RELEASE_DATE = "X-DATE";
 }

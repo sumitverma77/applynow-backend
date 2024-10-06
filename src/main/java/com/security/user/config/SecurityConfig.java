@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -43,8 +44,10 @@ public class SecurityConfig {
 //                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 //         return  http.build();
         return http.
-                csrf(customizer -> customizer.disable()).
-                authorizeHttpRequests(request -> request
+                csrf(customizer -> customizer.disable())
+                 .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/user/register" ,"/user/login" ,"/user/verify-otp" ,"/user/resend-otp" ,"/job/delete" , "/job/approve" , "/job/get-all-jobs")
                         .permitAll()
                         .anyRequest().authenticated()).
@@ -53,9 +56,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtFilter , UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
-
-
-
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
