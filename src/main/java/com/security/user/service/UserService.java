@@ -48,17 +48,17 @@ public class UserService {
         }
 
         String otp = AuthUtils.generateOtp();
-        request.setOtp(otp);
         emailService.sendOtpEmail(request.getEmail(), otp);
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         if(userRepo.existsByUserNameAndIsActive(request.getEmail() , false)) {
             User user =  userRepo.findByUserName(request.getEmail());
+            user.setName(request.getName());
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setOtp(otp);
             userRepo.save(user);
         }
         else {
-            request.setOtp(otp);
-            userRepo.save(UserConverter.toEntity(request));
+            userRepo.save(UserConverter.toEntity(request, otp));
         }
         return ResponseEntity.ok("OTP has been sent to : " + request.getEmail());
     }

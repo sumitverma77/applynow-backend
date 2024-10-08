@@ -1,4 +1,4 @@
-package com.security.user.config.aws;
+package com.security.user.config.dto;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
