@@ -6,6 +6,7 @@ import com.security.user.entity.User;
 import com.security.user.dto.request.RegisterRequest;
 import com.security.user.service.EmailService;
 import com.security.user.service.UserService;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -41,11 +42,13 @@ public class UserController {
         {
                    return  emailService.resendOtp(email);
         }
+      @Hidden
      @GetMapping ("test")
      public void test()
      {
          System.out.println("test");
      }
+     @Hidden
     @GetMapping("csrf/")
     public CsrfToken getCsrfToken(HttpServletRequest request) {
         System.out.println("hi");

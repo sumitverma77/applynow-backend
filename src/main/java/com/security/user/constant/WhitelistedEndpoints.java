@@ -7,7 +7,7 @@ public class WhitelistedEndpoints {
             "/user/verify-otp" ,
             "/user/resend-otp"
     };
-    public static final String[] JOB_ENDPOINTS = {
+    public static final String[]    JOB_ENDPOINTS = {
             "/job/delete" ,
             "/job/approve" ,
             "/job/get-all-jobs"
@@ -21,6 +21,6 @@ public class WhitelistedEndpoints {
             "/swagger-ui.html",
             "/webjars/**",
             "/v3/api-docs/**",
-            "/swagger-ui/**"
+           "/swagger-ui/**"
     };
 }

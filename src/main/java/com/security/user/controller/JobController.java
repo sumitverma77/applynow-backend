@@ -5,6 +5,7 @@ import com.security.user.dto.request.GetJobRequest;
 import com.security.user.dto.response.AddJobResponse;
 import com.security.user.entity.job.JobEntity;
 import com.security.user.service.JobService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ public class JobController {
     JobService jobService;
 
     @PostMapping("post")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<AddJobResponse> add(@RequestBody AddJobRequest addRequest) {
 
         return jobService.saveJob(addRequest);
@@ -31,7 +33,9 @@ public class JobController {
 
         return jobService.getJobs(getJobRequest, secretKey);
     }
+
     @PostMapping("get/verified-jobs")
+    @SecurityRequirement(name = "bearerAuth")
     public  ResponseEntity<List<JobEntity>> getVerifiedJobs(@RequestBody GetJobRequest getJobRequest)
     {
         return jobService.getVerifiedJobs(getJobRequest);

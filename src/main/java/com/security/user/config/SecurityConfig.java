@@ -2,6 +2,8 @@ package com.security.user.config;
 
 import com.security.user.config.filter.JwtFilter;
 import com.security.user.constant.WhitelistedEndpoints;
+import com.security.user.service.JWTService;
+import com.security.user.utils.AuthUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +13,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,7 +32,7 @@ import org.springframework.web.filter.RequestContextFilter;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfig  {
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -48,7 +51,6 @@ public class SecurityConfig {
                         .requestMatchers(WhitelistedEndpoints.JOB_ENDPOINTS).permitAll()
                         .requestMatchers(WhitelistedEndpoints.SWAGGER_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()).
-//                httpBasic(Customizer.withDefaults()).
                 sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter , UsernamePasswordAuthenticationFilter.class)
                 .build();
