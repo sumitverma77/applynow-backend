@@ -1,6 +1,7 @@
 package com.security.user.config;
 
 import com.security.user.config.filter.JwtFilter;
+import com.security.user.constant.WhitelistedEndpoints;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,23 +36,19 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
+
     @Bean
     public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
-        //                 http
-//                .csrf(customer->customer.disable())
-//                .authorizeHttpRequests(request->request.anyRequest().authenticated())
-//                .httpBasic(Customizer.withDefaults())
-//                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-//         return  http.build();
         return http.
                 csrf(customizer -> customizer.disable())
                  .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/user/register" ,"/user/login" ,"/user/verify-otp" ,"/user/resend-otp" ,"/job/delete" , "/job/approve" , "/job/get-all-jobs")
-                        .permitAll()
+                        .requestMatchers(WhitelistedEndpoints.USER_ENDPOINTS).permitAll()
+                        .requestMatchers(WhitelistedEndpoints.JOB_ENDPOINTS).permitAll()
+                        .requestMatchers(WhitelistedEndpoints.SWAGGER_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()).
-                httpBasic(Customizer.withDefaults()).
+//                httpBasic(Customizer.withDefaults()).
                 sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter , UsernamePasswordAuthenticationFilter.class)
                 .build();
