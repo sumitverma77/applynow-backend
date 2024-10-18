@@ -21,8 +21,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 
 public class UserServiceTest {
 
@@ -80,35 +81,68 @@ public class UserServiceTest {
     }
 
     @Test
-    public void registerUserSuccess() {
-        RegisterRequest registerRequest = new RegisterRequest();
-        registerRequest.setEmail("987sumitverma@gmail.com");
-        registerRequest.setName("sumit");
-        registerRequest.setPassword("123sumit");
+    public void registerUserWithUpdatedDetails() {
+        RegisterRequest request = new RegisterRequest();
+        request.setEmail("test@example.com");
+        request.setPassword("123sumit");
+        request.setName("Test User");
 
-        when(userRepo.existsByUserNameAndIsActive(registerRequest.getEmail(), true)).thenReturn(false);
-        when(userRepo.existsByUserNameAndIsActive(registerRequest.getEmail(), false)).thenReturn(true);
+        String otp = "123456";
+        String encodedPassword = "encodedPassword";
 
-        User existingUser = new User();
-         when(userRepo.findByUserName(registerRequest.getEmail())).thenReturn(existingUser);
 
-        when(passwordEncoder.encode(registerRequest.getPassword())).thenReturn("encodedPassword");
+        when(userRepo.existsByUserNameAndIsActive(request.getEmail(), true)).thenReturn(false);
+        when(userRepo.existsByUserNameAndIsActive(request.getEmail(), false)).thenReturn(true);
+        when(userRepo.findByUserName(request.getEmail())).thenReturn(new User());
+        when(passwordEncoder.encode(request.getPassword())).thenReturn(encodedPassword);
+        try (MockedStatic<AuthUtils> authUtilsMock = mockStatic(AuthUtils.class)) {
+            // Mock static method generateOtp
+            authUtilsMock.when(AuthUtils::generateOtp).thenReturn(otp);
+            ResponseEntity<?> response = userService.registerUser(request, "correct-api-key");
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertEquals("OTP has been sent to : " + request.getEmail(), response.getBody());
 
-        try (MockedStatic<AuthUtils> mockedAuthUtils = Mockito.mockStatic(AuthUtils.class)) {
-            mockedAuthUtils.when(AuthUtils::generateOtp).thenReturn("123456");
+            verify(emailService, times(1)).sendOtpEmail(request.getEmail(), otp);
 
-            User newUser = new User();
-            try (MockedStatic<UserConverter> mockedUserConverter = Mockito.mockStatic(UserConverter.class)) {
-                mockedUserConverter.when(() -> UserConverter.toEntity(registerRequest, "123456")).thenReturn(newUser);
+            verify(userRepo, times(1)).save(any(User.class));
+        }
+    }
 
-                ResponseEntity<?> response = userService.registerUser(registerRequest, "correct-api-key");
+    @Test
+    public void registerUserWithNewDetails() {
 
-                assertEquals(HttpStatus.OK, response.getStatusCode());
-                assertEquals("OTP has been sent to : " + registerRequest.getEmail(), response.getBody());
-            }
+        RegisterRequest request = new RegisterRequest();
+        request.setEmail("sumitverma@gmail.com");
+        request.setName("sumit");
+        request.setPassword("123sumit");
+
+        when(userRepo.existsByUserNameAndIsActive(request.getEmail(), true)).thenReturn(false);
+        when(userRepo.existsByUserNameAndIsActive(request.getEmail(), false)).thenReturn(false);
+        try (MockedStatic<AuthUtils> authUtilsMock = mockStatic(AuthUtils.class);
+             MockedStatic<UserConverter> converterMock = mockStatic(UserConverter.class)) {
+            String otp = "123456";
+            authUtilsMock.when(AuthUtils::generateOtp).thenReturn(otp);
+
+            User mockUser = new User();
+            converterMock.when(() -> UserConverter.toEntity(request, otp)).thenReturn(mockUser);
+
+            when(userRepo.save(any(User.class))).thenReturn(mockUser);
+
+            userService.registerUser(request,"correct-api-key");
+
+            verify(emailService, times(1)).sendOtpEmail(request.getEmail(), otp);
+            verify(userRepo, times(1)).save(mockUser);
+
+
+            verify(emailService, times(1)).sendOtpEmail(request.getEmail(), "123456");
+            verify(userRepo, times(1)).save(any(User.class));
         }
 
     }
+
+
+
+
     @Test
     public void loginWithWrongEmail() {
         LoginRequest loginRequest = new LoginRequest();
